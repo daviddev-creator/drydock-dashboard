@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const apiRoutes = require('./routes/api.routes');
 
 const app = express();
 
@@ -9,6 +10,8 @@ app.use(express.json());
 app.get('/', (req, res) => {
   res.json({ name: "Drydock Dashboard API", status: 'ok' });
 });
+
+app.use('/api', apiRoutes);
 
 app.use('/api', (req, res) => {
     res.status(404).json({ success: false, message: 'Endpoint Tidak Ada!' });

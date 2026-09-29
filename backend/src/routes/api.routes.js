@@ -3,6 +3,7 @@ const master = require('../controllers/master.controller');
 const specGroups = require('../controllers/specification-groups.controller');
 const workOrders = require('../controllers/work-orders.controller');
 const woTasks = require('../controllers/work-order-tasks.controller');
+const checklists = require('../controllers/checklists.controller');
 
 
 router.get('/vessels', master.vessels);
@@ -37,5 +38,20 @@ router.put('/work-orders/:id/tasks/:taskId', woTasks.update);
 router.delete('/work-orders/:id/tasks/:taskId', woTasks.destroy);
 
 router.post('/work-orders/:id/purchase-orders', workOrders.addPurchaseOrder);
+
+router.post('/work-orders/:id/checklists', workOrders.attachChecklist);
+router.put('/work-orders/:id/checklists/:rowId', workOrders.saveChecklist);
+router.delete('/work-orders/:id/checklists/:rowId', workOrders.detachChecklist);
+
+router.get('/checklists', checklists.index);
+router.get('/checklists/:id', checklists.show);
+router.post('/checklists', checklists.store);
+router.put('/checklists/:id', checklists.update);
+router.delete('/checklists/:id', checklists.destroy);
+
+router.post('/checklists/:id/items', checklists.addItem);
+router.put('/checklists/:id/items/:itemId', checklists.updateItem);
+router.delete('/checklists/:id/items/:itemId', checklists.deleteItem);
+
 
 module.exports = router;

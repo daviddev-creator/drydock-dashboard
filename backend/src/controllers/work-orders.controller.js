@@ -27,7 +27,6 @@ exports.show = asyncHandler(async (req, res) => {
         .first();
     if (!wo) throw new ApiError(404, 'Work order tidak ditemukan');
 
-    // Ambil semua data anak secara paralel
     const [subJobs, spares, attachments, tasks, purchaseOrders] = await Promise.all([
         knex('sub_jobs').where('work_order_id', wo.id).orderBy('id'),
         knex('work_order_spares as ws')
@@ -39,6 +38,22 @@ exports.show = asyncHandler(async (req, res) => {
         knex('purchase_orders').where('work_order_id', wo.id).orderBy('id'),
     ]);
 
+    const checklists = await knex('work_order_checklists as wc')
+        .join('checklists as c', 'wc.checklist_id', 'c.id')
+        .where('wc.work_order_id', wo.id)
+        .select('wc.*', 'c.name', 'c.description');
+
+    for (const wc of checklists) {
+        const items = await knex('checklist_items').where('checklist_id', wc.checklist_id).orderBy('sort_order');
+        const answers = await knex('checklist_answers').where('work_order_checklist_id', wc.id);
+        const answerMap = Object.fromEntries(answers.map((a) => [a.checklist_item_id, a.value]));
+        wc.items = items.map((i) => ({
+        ...i,
+        options: i.options ? JSON.parse(i.options) : [],
+        value: answerMap[i.id] ?? ''
+        }));
+    }
+
     ok(res, {
         ...wo,
         sub_jobs: subJobs,
@@ -46,7 +61,7 @@ exports.show = asyncHandler(async (req, res) => {
         attachments,
         tasks,
         purchase_orders: purchaseOrders,
-        checklists: [] // Akan kita isi di modul berikutnya (Checklist)
+        checklists //catatan pribadi , sudah di implementasi yang sebelum nya agar mudah catat proses soalnya lumayan rumit flownya
     });
 });
 
@@ -150,6 +165,7 @@ exports.deleteAttachment = asyncHandler(async (req, res) => {
     ok(res, { deleted: true });
 })
 
+// tambah purchase order
 exports.addPurchaseOrder = asyncHandler(async (req, res) => {
     const [id] = await knex('purchase_orders').insert({
         work_order_id: req.params.id,
@@ -159,4 +175,42 @@ exports.addPurchaseOrder = asyncHandler(async (req, res) => {
         category: req.body.category || 'Inventory',
     });
     ok(res, { id }, 201);
+});
+
+// tambah checklist ke work order
+exports.attachChecklist = asyncHandler(async (req, res) => {
+    const checklist = await knex('checklists').where('id', req.body.checklist_id).first();
+    if (!checklist) throw new ApiError(404, 'Checklist tidak ditemukan');
+    const [id] = await knex('work_order_checklists').insert({
+        work_order_id: req.params.id, checklist_id: checklist.id, remarks: null, completed: false,
+    });
+    ok(res, { id }, 201);
+});
+
+// simpan checklist
+exports.saveChecklist = asyncHandler(async (req, res) => {
+    const rowId = req.params.rowId;
+    const { remarks, completed, answers } = req.body;
+    await knex('work_order_checklists').where({ id: rowId, work_order_id: req.params.id }).update({
+        remarks: remarks ?? null,
+        completed: !!completed,
+        completed_at: completed ? knex.fn.now() : null,
+    });
+    if (Array.isArray(answers)) {
+        for (const a of answers) {
+        const exists = await knex('checklist_answers').where({ work_order_checklist_id: rowId, checklist_item_id: a.checklist_item_id }).first();
+        if (exists) {
+            await knex('checklist_answers').where('id', exists.id).update({ value: a.value ?? null });
+        } else {
+            await knex('checklist_answers').insert({ work_order_checklist_id: rowId, checklist_item_id: a.checklist_item_id, value: a.value ?? null });
+        }
+        }
+    }
+    ok(res, { id: Number(rowId) });
+});
+
+// hapus checklist dari work order
+exports.detachChecklist = asyncHandler(async (req, res) => {
+    await knex('work_order_checklists').where({ id: req.params.rowId, work_order_id: req.params.id }).del();
+    ok(res, { deleted: true });
 });

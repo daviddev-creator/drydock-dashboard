@@ -8,7 +8,7 @@ app.use(cors());
 app.use(express.json());
 
 app.get('/', (req, res) => {
-  res.json({ name: "Drydock Dashboard API", status: 'ok' });
+    res.json({ name: "Drydock Dashboard API", status: 'ok' });
 });
 
 app.use('/api', apiRoutes);

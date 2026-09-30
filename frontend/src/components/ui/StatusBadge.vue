@@ -23,6 +23,9 @@ const colors = {
     High: 'bg-red-100 text-red-700',
     Medium: 'bg-amber-100 text-amber-700',
     Low: 'bg-slate-200 text-slate-600',
+    'Dock Job': 'bg-yellow-50 text-yellow-600',
+    'PMS Job': 'bg-red-50 text-red-600',
+    'UPM Job': 'bg-blue-50 text-blue-600',
 };
 </script>
 

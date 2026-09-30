@@ -43,6 +43,18 @@ const routes = [
                 component: () => import('../views/work-orders/WorkOrderDetailView.vue'),
                 meta: { title: 'Work Order' },
             },
+            {
+                path: 'dry-docks',
+                name: 'dry-docks',
+                component: () => import('../views/dry-docks/DryDockListView.vue'),
+                meta: { title: 'Dry Docks' },
+            },
+            {
+                path: 'dry-docks/:id',
+                name: 'dry-dock-detail',
+                component: () => import('../views/dry-docks/DryDockDetailView.vue'),
+                meta: { title: 'Dry Dock Detail' },
+            },
         ],
     },
 ];

@@ -19,6 +19,18 @@ const routes = [
                 component: () => import('../views/spec-groups/SpecGroupDetailView.vue'),
                 meta: { title: 'Specification Group' },
             },
+            {
+                path: 'checklists',
+                name: 'checklists',
+                component: () => import('../views/checklists/ChecklistListView.vue'),
+                meta: { title: 'Checklist' },
+            },
+            {
+                path: 'checklists/:id',
+                name: 'checklist-detail',
+                component: () => import('../views/checklists/ChecklistDetailView.vue'),
+                meta: { title: 'Checklist Detail' },
+            },
         ],
     },
 ];

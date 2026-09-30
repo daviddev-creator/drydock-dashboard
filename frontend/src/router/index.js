@@ -31,6 +31,18 @@ const routes = [
                 component: () => import('../views/checklists/ChecklistDetailView.vue'),
                 meta: { title: 'Checklist Detail' },
             },
+            {
+                path: 'work-orders',
+                name: 'work-orders',
+                component: () => import('../views/work-orders/WorkOrderListView.vue'),
+                meta: { title: 'Work Order Master' },
+            },
+            {
+                path: 'work-orders/:id',
+                name: 'work-order-detail',
+                component: () => import('../views/work-orders/WorkOrderDetailView.vue'),
+                meta: { title: 'Work Order' },
+            },
         ],
     },
 ];

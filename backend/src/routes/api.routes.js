@@ -7,6 +7,15 @@ const checklists = require('../controllers/checklists.controller');
 const dryDocks = require('../controllers/dry-docks.controller');
 const sourcing = require('../controllers/sourcing.controller');
 
+const dashboard = require('../controllers/dashboard.controller');
+const kanban = require('../controllers/kanban.controller');
+
+router.get('/dashboard', dashboard.index);
+
+router.get('/kanban/:board', kanban.show);
+router.post('/kanban', kanban.store);
+router.put('/kanban/:id', kanban.update);
+router.delete('/kanban/:id', kanban.destroy);
 
 router.get('/vessels', master.vessels);
 router.get('/shipyards', master.shipyards);

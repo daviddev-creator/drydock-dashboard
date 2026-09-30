@@ -214,3 +214,15 @@ exports.detachChecklist = asyncHandler(async (req, res) => {
     await knex('work_order_checklists').where({ id: req.params.rowId, work_order_id: req.params.id }).del();
     ok(res, { deleted: true });
 });
+
+// tambah work order ke spesifikasi dry dock
+exports.addToSpec = asyncHandler(async (req, res) => {
+    const { dry_dock_id, location } = req.body;
+    if (!dry_dock_id) throw new ApiError(400, 'dry_dock_id wajib diisi');
+    const max = await knex('dock_work_orders').where('dry_dock_id', dry_dock_id).max('sort_order as m').first();
+    const [id] = await knex('dock_work_orders').insert({
+        dry_dock_id, work_order_id: req.params.id, location: location || null,
+        sort_order: (max?.m ?? 0) + 1,
+    });
+    ok(res, { id }, 201);
+});

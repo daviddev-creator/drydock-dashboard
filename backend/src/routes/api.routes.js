@@ -4,6 +4,7 @@ const specGroups = require('../controllers/specification-groups.controller');
 const workOrders = require('../controllers/work-orders.controller');
 const woTasks = require('../controllers/work-order-tasks.controller');
 const checklists = require('../controllers/checklists.controller');
+const dryDocks = require('../controllers/dry-docks.controller');
 
 
 router.get('/vessels', master.vessels);
@@ -52,6 +53,18 @@ router.delete('/checklists/:id', checklists.destroy);
 router.post('/checklists/:id/items', checklists.addItem);
 router.put('/checklists/:id/items/:itemId', checklists.updateItem);
 router.delete('/checklists/:id/items/:itemId', checklists.deleteItem);
+
+router.get('/dry-docks', dryDocks.index);
+router.get('/dry-docks/:id', dryDocks.show);
+router.post('/dry-docks', dryDocks.store);
+router.put('/dry-docks/:id', dryDocks.update);
+router.delete('/dry-docks/:id', dryDocks.destroy);
+
+router.post('/work-orders/:id/add-to-spec', workOrders.addToSpec);
+router.get('/dry-docks/:id/work-orders', dryDocks.workOrders);
+router.post('/dry-docks/:id/work-orders', dryDocks.addWorkOrder);
+router.put('/dry-docks/:id/work-orders/:dockWoId', dryDocks.updateWorkOrder);
+router.delete('/dry-docks/:id/work-orders/:dockWoId', dryDocks.removeWorkOrder);
 
 
 module.exports = router;

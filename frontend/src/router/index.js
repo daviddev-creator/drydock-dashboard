@@ -6,6 +6,19 @@ const routes = [
         path: '/',
         component: MainLayout,
         children: [
+            { path: '', redirect: '/specification-groups' },
+            {
+                path: 'specification-groups',
+                name: 'spec-groups',
+                component: () => import('../views/spec-groups/SpecGroupListView.vue'),
+                meta: { title: 'Specification Groups' },
+            },
+            {
+                path: 'specification-groups/:id',
+                name: 'spec-group-detail',
+                component: () => import('../views/spec-groups/SpecGroupDetailView.vue'),
+                meta: { title: 'Specification Group' },
+            },
         ],
     },
 ];
@@ -13,6 +26,10 @@ const routes = [
 const router = createRouter({
     history: createWebHistory(),
     routes,
+});
+
+router.afterEach((to) => {
+    document.title = `${to.meta.title ?? 'Dry Dock'} — Dry Dock Management`;
 });
 
 export default router;

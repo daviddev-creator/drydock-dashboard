@@ -53,7 +53,7 @@ onMounted(load);
                         <div class="flex items-start justify-between gap-2">
                             <p class="text-sm font-semibold text-slate-800">{{ task.title }}</p>
                             <select
-                                class="rounded border border-slate-200 bg-white px-1.5 py-0.5 text-xs text-slate-600"
+                                class="rounded form-select border border-slate-200 bg-white px-1.5 py-0.5 text-xs text-slate-600"
                                 :value="task.status" @change="setStatus(task, $event.target.value)">
                                 <option>Open</option>
                                 <option>In Progress</option>

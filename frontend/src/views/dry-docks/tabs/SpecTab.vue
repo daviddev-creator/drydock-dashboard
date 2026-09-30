@@ -88,7 +88,7 @@ onMounted(load);
                         <p class="truncate text-sm font-medium text-slate-800">{{ row.job_name }}</p>
                         <p class="truncate text-xs text-slate-500">{{ row.location || '—' }}</p>
                     </div>
-                    <select class="rounded border border-slate-200 bg-white px-2 py-1 text-xs text-slate-600"
+                    <select class="rounded border form-select border-slate-200 bg-white px-2 py-1 text-xs text-slate-600"
                         :value="row.status" @change="setStatus(row, $event.target.value)">
                         <option>Open</option>
                         <option>In Progress</option>

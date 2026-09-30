@@ -120,14 +120,14 @@ onMounted(load);
                         <div class="card space-y-3 p-5">
                             <div>
                                 <label class="label">Shipyard</label>
-                                <select v-model="dock.shipyard_id" class="input">
+                                <select v-model="dock.shipyard_id" class="input form-select pr-3">
                                     <option :value="null">— Belum ditentukan —</option>
                                     <option v-for="s in shipyards" :key="s.id" :value="s.id">{{ s.name }}</option>
                                 </select>
                             </div>
                             <div>
                                 <label class="label">Priority</label>
-                                <select v-model="dock.priority" class="input">
+                                <select v-model="dock.priority" class="input form-select pr-3">
                                     <option>High</option>
                                     <option>Medium</option>
                                     <option>Low</option>
@@ -135,7 +135,7 @@ onMounted(load);
                             </div>
                             <div>
                                 <label class="label">Status</label>
-                                <select v-model="dock.status" class="input">
+                                <select v-model="dock.status" class="input form-select pr-3">
                                     <option>Planning</option>
                                     <option>Execution</option>
                                     <option>Completed</option>

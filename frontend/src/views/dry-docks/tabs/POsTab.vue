@@ -87,7 +87,7 @@ onMounted(load);
             </div>
             <div>
                 <label class="label">Category</label>
-                <select v-model="form.category" class="input">
+                <select v-model="form.category" class="input form-select pr-3">
                     <option v-for="c in CATEGORIES" :key="c" :value="c">{{ c }}</option>
                 </select>
             </div>

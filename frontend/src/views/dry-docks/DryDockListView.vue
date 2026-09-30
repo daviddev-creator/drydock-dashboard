@@ -133,7 +133,7 @@ onMounted(load);
                 </div>
                 <div>
                     <label class="label">Priority</label>
-                    <select v-model="form.priority" class="input">
+                    <select v-model="form.priority" class="input form-select pr-3">
                         <option>High</option>
                         <option>Medium</option>
                         <option>Low</option>
@@ -157,7 +157,7 @@ onMounted(load);
                 </div>
                 <div>
                     <label class="label">Status</label>
-                    <select v-model="form.status" class="input">
+                    <select v-model="form.status" class="input form-select pr-3">
                         <option v-for="s in statuses" :key="s" :value="s">{{ s }}</option>
                     </select>
                 </div>

@@ -185,7 +185,7 @@ onMounted(load);
             @save="saveUpdate">
             <div>
                 <label class="label">Work Order</label>
-                <select v-model="updateForm.dock_work_order_id" class="input">
+                <select v-model="updateForm.dock_work_order_id" class="input form-select pr-3">
                     <option value="">— Pilih work order di dock —</option>
                     <option v-for="row in updates" :key="row.dock_wo_id" :value="row.dock_wo_id">
                         {{ row.job_code }} — {{ row.job_name }}

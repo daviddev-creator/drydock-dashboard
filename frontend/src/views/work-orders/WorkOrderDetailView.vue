@@ -251,7 +251,7 @@ onMounted(load);
                                     <p class="mb-1.5 text-sm font-medium text-slate-700">{{ item.title }}</p>
                                     <!-- pilihan tunggal -->
                                     <select v-if="item.data_type === 'single_choice'" v-model="item.value"
-                                        class="input">
+                                        class="input form-select pr-3">
                                         <option value="">— Pilih —</option>
                                         <option v-for="opt in item.options" :key="opt" :value="opt">{{ opt }}</option>
                                     </select>
@@ -299,7 +299,7 @@ onMounted(load);
                                 <div class="flex items-start justify-between gap-2">
                                     <p class="text-sm font-semibold text-slate-800">{{ task.title }}</p>
                                     <select
-                                        class="rounded border border-slate-200 bg-white px-1.5 py-0.5 text-xs text-slate-600"
+                                        class="rounded form-select border border-slate-200 bg-white px-1.5 py-0.5 text-xs text-slate-600"
                                         :value="task.status" @change="setTaskStatus(task, $event.target.value)">
                                         <option>Open</option>
                                         <option>In Progress</option>
@@ -351,7 +351,7 @@ onMounted(load);
         <AppModal :open="showSpecModal" title="Add to Specification" @close="showSpecModal = false" @save="addToSpec">
             <div>
                 <label class="label">Dry Dock</label>
-                <select v-model="specForm.dry_dock_id" class="input">
+                <select v-model="specForm.dry_dock_id" class="input form-select pr-3">
                     <option value="">— Pilih dry dock —</option>
                     <option v-for="dd in dryDocks" :key="dd.id" :value="dd.id">
                         {{ dd.vessel_name }} — {{ dd.dock_no }}
@@ -400,7 +400,7 @@ onMounted(load);
             @save="attachChecklist">
             <div>
                 <label class="label">Checklist (hanya yang aktif)</label>
-                <select v-model="checklistForm.checklist_id" class="input">
+                <select v-model="checklistForm.checklist_id" class="input form-select pr-3">
                     <option value="">— Pilih checklist —</option>
                     <option v-for="c in activeChecklists" :key="c.id" :value="c.id">{{ c.name }}</option>
                 </select>

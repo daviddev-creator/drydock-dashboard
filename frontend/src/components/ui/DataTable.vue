@@ -69,7 +69,7 @@ function exportCsv() {
                 v-for="f in filters"
                 :key="f.key"
                 v-model="activeFilters[f.key]"
-                class="input w-auto"
+                class="input w-auto min-w-36 form-select pr-2"
                 :title="`Filter ${f.label}`"
             >
                 <option value="">{{ f.label }}</option>

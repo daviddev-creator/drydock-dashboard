@@ -92,7 +92,7 @@ onMounted(load);
                 </div>
                 <div>
                     <label class="label">Job Type</label>
-                    <select v-model="form.job_type" class="input">
+                    <select v-model="form.job_type" class="input form-select pr-3">
                         <option>PMS Job</option>
                         <option>Dock Job</option>
                         <option>UPM Job</option>

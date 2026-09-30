@@ -6,7 +6,13 @@ const routes = [
         path: '/',
         component: MainLayout,
         children: [
-            { path: '', redirect: '/specification-groups' },
+            { path: '', redirect: '/dashboard' },
+            {
+                path: 'dashboard',
+                name: 'dashboard',
+                component: () => import('../views/dashboard/DashboardView.vue'),
+                meta: { title: 'Dashboard' },
+            },
             {
                 path: 'specification-groups',
                 name: 'spec-groups',

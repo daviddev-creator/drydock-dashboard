@@ -157,7 +157,7 @@ onMounted(load);
             </div>
             <div>
                 <label class="label">Data Type</label>
-                <select v-model="itemForm.data_type" class="input">
+                <select v-model="itemForm.data_type" class="input form-select pr-3">
                     <option v-for="t in DATA_TYPES" :key="t.value" :value="t.value">{{ t.label }}</option>
                 </select>
             </div>

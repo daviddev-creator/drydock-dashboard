@@ -34,7 +34,7 @@ exports.show = asyncHandler(async (req, res) => {
     }
     const dock = await query.first();
     if (!dock) throw new ApiError(404, 'Dry dock tidak ditemukan');
-    ok(res, dock);
+    ok(res, { ...dock, ...(await costsSummary(dock)) });
 });
 
 //tambah data
@@ -124,4 +124,216 @@ exports.updateWorkOrder = asyncHandler(async (req, res) => {
 exports.removeWorkOrder = asyncHandler(async (req, res) => {
     await knex('dock_work_orders').where({ id: req.params.dockWoId, dry_dock_id: req.params.id }).del();
     ok(res, { deleted: true });
+});
+
+// ambil data tasks di dock
+exports.tasks = asyncHandler(async (req, res) => {
+    ok(res, await knex('tasks').where('dry_dock_id', req.params.id).orderBy('id'));
+});
+
+// tambah data task di dock
+exports.addTask = asyncHandler(async (req, res) => {
+    const [id] = await knex('tasks').insert({
+        dry_dock_id: req.params.id, title: req.body.title,
+        description: req.body.description || null, responsibility: req.body.responsibility || null,
+        due_date: req.body.due_date || null, status: req.body.status || 'Open',
+    });
+    ok(res, { id }, 201);
+});
+
+// ubah data task di dock
+exports.updateTask = asyncHandler(async (req, res) => {
+    const patch = {};
+    for (const key of ['title', 'description', 'responsibility', 'due_date', 'status']) {
+        if (req.body[key] !== undefined) patch[key] = req.body[key];
+    }
+    await knex('tasks').where({ id: req.params.taskId, dry_dock_id: req.params.id }).update(patch);
+    ok(res, { id: Number(req.params.taskId) });
+});
+
+// hapus data task di dock
+exports.deleteTask = asyncHandler(async (req, res) => {
+    await knex('tasks').where({ id: req.params.taskId, dry_dock_id: req.params.id }).del();
+    ok(res, { deleted: true });
+});
+
+// ambil data purchase order di dock
+exports.purchaseOrders = asyncHandler(async (req, res) => {
+    ok(res, await knex('purchase_orders').where('dry_dock_id', req.params.id).orderBy('id'));
+});
+
+// tambah data purchase order di dock
+exports.addPurchaseOrder = asyncHandler(async (req, res) => {
+    const [id] = await knex('purchase_orders').insert({
+        dry_dock_id: req.params.id, po_no: req.body.po_no, supplier: req.body.supplier || null,
+        total: req.body.total ?? 0, category: req.body.category || 'Inventory',
+    });
+    ok(res, { id }, 201);
+});
+
+
+// ambil data updates di dock
+exports.updates = asyncHandler(async (req, res) => {
+    const rows = await knex('dock_work_orders as dwo')
+        .join('work_orders as wo', 'dwo.work_order_id', 'wo.id')
+        .leftJoin('specification_groups as sg', 'wo.spec_group_id', 'sg.id')
+        .where('dwo.dry_dock_id', req.params.id)
+        .select('dwo.id as dock_wo_id', 'dwo.status', 'wo.job_code', 'wo.job_name', 'sg.name as spec_group_name');
+
+    const latest = await knex('wo_updates as u')
+        .join(knex('wo_updates').max('id as max_id').groupBy('dock_work_order_id').as('lat'), 'lat.max_id', 'u.id')
+        .select('u.*');
+    const latestMap = Object.fromEntries(latest.map((u) => [u.dock_work_order_id, u]));
+
+    ok(res, rows.map((r) => ({ ...r, latest_update: latestMap[r.dock_wo_id] || null })));
+});
+
+// tambah data update di dock
+exports.addUpdate = asyncHandler(async (req, res) => {
+    const [id] = await knex('wo_updates').insert({
+        dock_work_order_id: req.body.dock_work_order_id,
+        progress: req.body.progress ?? 0,
+        note: req.body.note || null,
+        updated_by: req.body.updated_by || 'Unknown',
+    });
+    if (req.body.progress >= 100 && req.body.mark_complete) {
+        await knex('dock_work_orders').where('id', req.body.dock_work_order_id).update({ status: 'Complete' });
+    }
+    ok(res, { id }, 201);
+});
+
+// ambil data facts di dock
+exports.facts = asyncHandler(async (req, res) => {
+    ok(res, await knex('dock_facts').where('dry_dock_id', req.params.id).orderBy('id'));
+});
+
+// tambah atau ubah data facts di dock
+exports.updateFacts = asyncHandler(async (req, res) => {
+    const entries = Object.entries(req.body.facts || {});
+    for (const [factKey, occurredAt] of entries) {
+        const existing = await knex('dock_facts').where({ dry_dock_id: req.params.id, fact_key: factKey }).first();
+        if (existing) {
+        await knex('dock_facts').where('id', existing.id).update({ occurred_at: occurredAt || null });
+        } else {
+        await knex('dock_facts').insert({ dry_dock_id: req.params.id, fact_key: factKey, occurred_at: occurredAt || null });
+        }
+    }
+    ok(res, { saved: true });
+});
+
+// ambil data meetings di dock
+exports.meetings = asyncHandler(async (req, res) => {
+    ok(res, await knex('meetings').where('dry_dock_id', req.params.id).orderBy('meeting_date'));
+});
+
+// tambah data meeting di dock
+exports.addMeeting = asyncHandler(async (req, res) => {
+    const [id] = await knex('meetings').insert({
+        dry_dock_id: req.params.id, title: req.body.title,
+        meeting_date: req.body.meeting_date || null, attendees: req.body.attendees || null,
+        notes: req.body.notes || null,
+    });
+    ok(res, { id }, 201);
+});
+
+// ambil data variation orders di dock
+exports.variationOrders = asyncHandler(async (req, res) => {
+    ok(res, await knex('variation_orders as vo')
+        .leftJoin('work_orders as wo', 'vo.work_order_id', 'wo.id')
+        .where('vo.dry_dock_id', req.params.id)
+        .select('vo.*', 'wo.job_name'));
+});
+
+// tambah data variation order di dock
+exports.addVariationOrder = asyncHandler(async (req, res) => {
+    const [id] = await knex('variation_orders').insert({
+        dry_dock_id: req.params.id, work_order_id: req.body.work_order_id || null,
+        title: req.body.title, cost: req.body.cost ?? 0, status: req.body.status || 'Open',
+    });
+    ok(res, { id }, 201);
+});
+
+// ambil data daily reports di dock
+exports.reports = asyncHandler(async (req, res) => {
+    ok(res, await knex('daily_reports').where('dry_dock_id', req.params.id).orderBy('report_date', 'desc'));
+});
+
+// tambah data daily report di dock
+exports.addReport = asyncHandler(async (req, res) => {
+    const [id] = await knex('daily_reports').insert({
+        dry_dock_id: req.params.id, title: req.body.title, author: req.body.author || null,
+        report_date: req.body.report_date || knex.fn.now(), content: req.body.content || null,
+    });
+    ok(res, { id }, 201);
+});
+
+// ambil ringkasan biaya di dock
+async function costsSummary(dock) {
+    const statusCounts = await knex('dock_work_orders')
+        .where('dry_dock_id', dock.id)
+        .select('status').count({ total: 'id' }).groupBy('status');
+
+    const woAgg = await knex('dock_work_orders as dwo')
+        .join('work_orders as wo', 'dwo.work_order_id', 'wo.id')
+        .where('dwo.dry_dock_id', dock.id)
+        .first({
+        owner_estimates: knex.raw('COALESCE(SUM(wo.internal_estimate), 0)'),
+        actual_costs: knex.raw('COALESCE(SUM(wo.budget), 0)'),
+        });
+
+    let yardEstimates = 0;
+    if (await knex.schema.hasTable('quotations') && await knex.schema.hasTable('rfqs')) {
+        const yardQuote = await knex('quotations as q')
+        .join('rfqs as r', 'q.rfq_id', 'r.id')
+        .where({ 'r.dry_dock_id': dock.id, 'q.selected': true })
+        .sum({ total: 'q.total' })
+        .first();
+        yardEstimates = yardQuote?.total ? Number(yardQuote.total) : 0;
+    }
+
+    const ownerEstimates = Number(woAgg?.owner_estimates ?? 0);
+    const actualYard = yardEstimates;
+    const actualOwner = Number(woAgg?.actual_costs ?? 0);
+
+    return {
+        status_counts: statusCounts,
+        cost_summary: {
+        budget: Number(dock.budget) || 0,
+        yard_estimates: yardEstimates,
+        owner_estimates: ownerEstimates,
+        total_estimates: yardEstimates + ownerEstimates,
+        actual_yard_costs: actualYard,
+        actual_owner_costs: actualOwner,
+        total_costs: actualYard + actualOwner,
+        variance: (yardEstimates + ownerEstimates) - (actualYard + actualOwner),
+        },
+    };
+}
+
+// ambil ringkasan biaya di dock
+exports.costs = asyncHandler(async (req, res) => {
+    const dock = await knex('dry_docks').where('id', req.params.id).first();
+    if (!dock) throw new ApiError(404, 'Dry dock tidak ditemukan');
+    const { cost_summary } = await costsSummary(dock);
+
+    const details = await knex('dock_work_orders as dwo')
+        .join('work_orders as wo', 'dwo.work_order_id', 'wo.id')
+        .where('dwo.dry_dock_id', req.params.id)
+        .select(
+        'dwo.id as dock_wo_id', 'wo.job_code', 'wo.job_name',
+        'wo.internal_estimate', 'wo.budget',
+        );
+
+    ok(res, { summary: cost_summary, details });
+});
+
+// ambil ringkasan biaya di dock
+exports.copyYardEstimates = asyncHandler(async (req, res) => {
+    const dock = await knex('dry_docks').where('id', req.params.id).first();
+    if (!dock) throw new ApiError(404, 'Dry dock tidak ditemukan');
+    const quote = await knex('quotations as q')
+        .join('rfqs as r', 'q.rfq_id', 'r.id')
+        .where({ 'r.dry_dock_id': dock.id, 'q.selected': true })
+        .first();
+    ok(res, { copied: !!quote });
 });

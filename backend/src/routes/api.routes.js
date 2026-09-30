@@ -66,5 +66,27 @@ router.post('/dry-docks/:id/work-orders', dryDocks.addWorkOrder);
 router.put('/dry-docks/:id/work-orders/:dockWoId', dryDocks.updateWorkOrder);
 router.delete('/dry-docks/:id/work-orders/:dockWoId', dryDocks.removeWorkOrder);
 
+router.get('/dry-docks/:id/tasks', dryDocks.tasks);
+router.post('/dry-docks/:id/tasks', dryDocks.addTask);
+router.put('/dry-docks/:id/tasks/:taskId', dryDocks.updateTask);
+router.delete('/dry-docks/:id/tasks/:taskId', dryDocks.deleteTask);
+
+router.get('/dry-docks/:id/updates', dryDocks.updates);
+router.post('/dry-docks/:id/updates', dryDocks.addUpdate);
+router.get('/dry-docks/:id/facts', dryDocks.facts);
+router.put('/dry-docks/:id/facts', dryDocks.updateFacts);
+router.get('/dry-docks/:id/meetings', dryDocks.meetings);
+router.post('/dry-docks/:id/meetings', dryDocks.addMeeting);
+router.get('/dry-docks/:id/variation-orders', dryDocks.variationOrders);
+router.post('/dry-docks/:id/variation-orders', dryDocks.addVariationOrder);
+
+router.get('/dry-docks/:id/reports', dryDocks.reports);
+router.post('/dry-docks/:id/reports', dryDocks.addReport);
+
+router.get('/dry-docks/:id/costs', dryDocks.costs);
+router.post('/dry-docks/:id/costs/copy-yard-estimates', dryDocks.copyYardEstimates);
+
+router.get('/dry-docks/:id/purchase-orders', dryDocks.purchaseOrders);
+router.post('/dry-docks/:id/purchase-orders', dryDocks.addPurchaseOrder);
 
 module.exports = router;

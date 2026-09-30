@@ -5,6 +5,7 @@ const workOrders = require('../controllers/work-orders.controller');
 const woTasks = require('../controllers/work-order-tasks.controller');
 const checklists = require('../controllers/checklists.controller');
 const dryDocks = require('../controllers/dry-docks.controller');
+const sourcing = require('../controllers/sourcing.controller');
 
 
 router.get('/vessels', master.vessels);
@@ -88,5 +89,17 @@ router.post('/dry-docks/:id/costs/copy-yard-estimates', dryDocks.copyYardEstimat
 
 router.get('/dry-docks/:id/purchase-orders', dryDocks.purchaseOrders);
 router.post('/dry-docks/:id/purchase-orders', dryDocks.addPurchaseOrder);
+
+router.get('/dry-docks/:id/rfqs', sourcing.rfqs);
+router.post('/dry-docks/:id/rfqs', sourcing.addRfq);
+router.post('/dry-docks/:id/rfqs/:rfqId/quotations', sourcing.addQuotation);
+router.put('/dry-docks/:id/rfqs/:rfqId/quotations/:quoteId', sourcing.updateQuotation);
+router.put('/quotations/:quoteId/decision', sourcing.decideQuotation);
+router.post('/quotations', sourcing.createQuotationQuick);
+router.put('/quotations/:quoteId', sourcing.updateQuotationById);
+router.get('/dry-docks/:id/quote-compare', sourcing.quoteCompare);
+router.get('/dry-docks/:id/approvals', sourcing.approvals);
+router.post('/dry-docks/:id/approvals', sourcing.addApproval);
+router.put('/dry-docks/:id/approvals/:approvalId', sourcing.decideApproval);
 
 module.exports = router;
